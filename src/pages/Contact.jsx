@@ -13,19 +13,50 @@ const field =
 export default function Contact({ navigate }) {
   const [form, setForm] = useState(EMPTY)
   const [sent, setSent] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState('')
+  /* Invisible to a reader, filled in by the kind of bot that submits every
+     field on a page. The server discards anything that arrives with it. */
+  const [company, setCompany] = useState('')
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault()
-    if (!form.name || !form.email) return
+    if (!form.name || !form.email || sending) return
 
-    const message = `Hello Ad Qube,\n\nI would like to discuss a project:\n\n*Name:* ${form.name}\n*Email:* ${form.email}\n*Phone:* ${form.phone || 'Not provided'}\n*Brief:* ${form.brief}`
-    window.open(`https://wa.me/916235502722?text=${encodeURIComponent(message)}`, '_blank')
-
-    setSent(true)
-    setTimeout(() => {
-      setSent(false)
-      setForm(EMPTY)
-    }, 5000)
+    setSending(true)
+    setError('')
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...form, company }),
+      })
+      if (res.status === 503) {
+        /* No mail key on the server yet. Rather than tell the visitor the site
+           is broken, hand them to WhatsApp with the brief prefilled — which is
+           what this form did before it could send email. Remove this branch
+           once sending has been live for a while. */
+        const message =
+          `Hello Ad Qube,\n\nI would like to discuss a project:\n\n` +
+          `*Name:* ${form.name}\n*Email:* ${form.email}\n` +
+          `*Phone:* ${form.phone || 'Not provided'}\n*Brief:* ${form.brief}`
+        window.open(`https://wa.me/916235502722?text=${encodeURIComponent(message)}`, '_blank')
+      } else if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body.error || 'The message could not be sent.')
+      }
+      setSent(true)
+      setTimeout(() => {
+        setSent(false)
+        setForm(EMPTY)
+      }, 6000)
+    } catch (err) {
+      /* Said out loud, with the address to fall back on. A form that appears
+         to succeed and quietly loses the enquiry is the worst outcome here. */
+      setError(err.message || 'Something went wrong. Please email adqubestudio@gmail.com.')
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
@@ -175,11 +206,32 @@ export default function Contact({ navigate }) {
                 />
               </div>
 
+              {/* The honeypot. Hidden from sight and from screen readers, and
+                  taken out of the tab order, so nobody using the page can land
+                  on it by accident. */}
+              <input
+                type="text"
+                name="company"
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                className="hidden"
+              />
+
+              {error && (
+                <p role="alert" className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                  {error}
+                </p>
+              )}
+
               <button
                 type="submit"
-                className="group mx-auto flex items-center justify-center gap-2 bg-ink hover:bg-ink/90 text-white font-semibold px-10 py-3.5 rounded-xl text-sm transition-all mt-2 shadow-md active:scale-[0.98] cursor-pointer"
+                disabled={sending}
+                className="group mx-auto flex items-center justify-center gap-2 bg-ink hover:bg-ink/90 text-white font-semibold px-10 py-3.5 rounded-xl text-sm transition-all mt-2 shadow-md active:scale-[0.98] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                <span>Submit</span>
+                <span>{sending ? 'Sending…' : 'Submit'}</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </form>
