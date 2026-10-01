@@ -32,7 +32,7 @@ export default function Services() {
           </h2>
           <p className="mt-6 text-body text-base md:text-lg leading-relaxed max-w-lg">
             We create realistic, cinematic video ads built around strong ideas, thoughtful storytelling, and detailed
-            visual direction, made to give brands something worth watching.
+            visual direction. Making a brand worth watching.
           </p>
         </motion.div>
 

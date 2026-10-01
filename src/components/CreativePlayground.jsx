@@ -228,8 +228,8 @@ export default function CreativePlayground() {
         </div>
 
         <blockquote className="font-serif text-2xl sm:text-3xl md:text-[2.6rem] text-ink font-normal leading-[1.25] tracking-tight">
-          &ldquo;Ideas don&rsquo;t have to look ordinary.
-          <br className="hidden sm:block" /> Neither should your ads.&rdquo;
+          &ldquo;Dreams and Ideas are always extraordinary.
+          <br className="hidden sm:block" /> So should be your ads.&rdquo;
         </blockquote>
       </motion.div>
     </section>
