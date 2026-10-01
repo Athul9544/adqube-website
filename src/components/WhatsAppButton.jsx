@@ -4,7 +4,7 @@ import { EASE } from '../data'
 /* The studio's own number, the same one the contact page lists. Prefilled so
    the conversation opens with context instead of an empty thread. */
 const WHATSAPP =
-  'https://wa.me/917560856994?text=' +
+  'https://wa.me/916235502722?text=' +
   encodeURIComponent('Hi Ad Qube — I came from your website and would like to talk about a project.')
 
 /* The WhatsApp mark, drawn rather than imported: lucide has no WhatsApp icon,

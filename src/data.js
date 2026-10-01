@@ -612,7 +612,7 @@ export const ABOUT_TIMELINE = [
 
 /* ── Contact page ───────────────────────────────────────────────────── */
 export const CONTACT_METHODS = [
-  { icon: Phone, label: 'Phone', value: '+91 7560-856-994', href: 'tel:+917560856994' },
+  { icon: Phone, label: 'Phone', value: '+91 6235-502-722', href: 'tel:+916235502722' },
   { icon: Mail, label: 'Email', value: 'adqube01@gmail.com', href: 'mailto:adqube01@gmail.com' },
   {
     icon: MapPin,

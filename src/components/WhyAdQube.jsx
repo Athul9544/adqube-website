@@ -44,7 +44,7 @@ function Pillar({ pillar, index }) {
   return (
     <motion.div
       variants={fadeUp}
-      className="[perspective:1200px] h-[190px] md:h-[210px] cursor-pointer"
+      className="[perspective:1200px] h-[155px] md:h-[170px] cursor-pointer"
       onHoverStart={() => setTurned(true)}
       onHoverEnd={() => setTurned(false)}
       /* Only on touch: on a pointer the hover already drives it, and a click
@@ -59,16 +59,33 @@ function Pillar({ pillar, index }) {
         transition={{ duration: 0.65, ease: EASE }}
       >
         {/* Front */}
-        <div className="absolute inset-0 [backface-visibility:hidden] bg-white rounded-2xl border border-line p-7 md:p-8 shadow-sm flex flex-col">
-          <span className="font-mono text-[11px] tracking-widest text-jelly-deep">0{index + 1}</span>
-          <p className="mt-4 font-serif text-xl md:text-2xl text-ink leading-snug">{pillar.title}</p>
-          <span className="mt-auto block h-px w-10 bg-jelly" />
+        {/* The number and the rule are taken out of the flow and pinned to the
+            corners, so the title can centre against the whole card rather than
+            against whatever space those two leave behind — stacked in a column
+            it sat 42px from the top and 26px from the bottom, which reads as
+            slightly high rather than centred. */}
+        <div className="absolute inset-0 [backface-visibility:hidden] bg-white rounded-2xl border border-line px-7 py-5 md:px-8 md:py-6 shadow-sm">
+          <span className="absolute top-5 left-7 md:top-6 md:left-8 font-mono text-[11px] tracking-widest text-jelly-deep">
+            0{index + 1}
+          </span>
+          <p className="h-full flex items-center justify-center text-center font-serif text-xl md:text-2xl text-ink leading-snug">
+            {pillar.title}
+          </p>
+          <span className="absolute bottom-5 left-7 md:bottom-6 md:left-8 block h-px w-10 bg-jelly" />
         </div>
 
         {/* Back */}
-        <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] bg-ink rounded-2xl border border-ink p-7 md:p-8 shadow-md flex flex-col justify-center gap-3">
+        {/* Tighter padding than the front: the card is shorter now and this
+            face carries two paragraphs that wrap to several lines on a narrow
+            column. */}
+        <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] bg-ink rounded-2xl border border-ink px-6 py-4 md:px-7 md:py-5 shadow-md flex flex-col justify-center gap-2.5">
+          {/* Tighter leading below lg, not below md: three cards share a row
+              from 640px up, so the column is at its narrowest between there and
+              1024 and these lines wrap the most. A md breakpoint handed the
+              roomier spacing back at exactly 768, which is where it was
+              tightest. */}
           {pillar.lines.map((line) => (
-            <p key={line} className="text-white/85 text-sm md:text-[15px] leading-relaxed">
+            <p key={line} className="text-white/85 text-sm lg:text-[15px] leading-snug lg:leading-relaxed">
               {line}
             </p>
           ))}
