@@ -12,3 +12,6 @@ dist
 # Original camera/export masters kept beside the project for re-encoding.
 # They are large and nothing in the build reads them.
 media-src
+
+# Stray screenshots from local testing.
+shot-*.png
