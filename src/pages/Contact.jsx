@@ -40,7 +40,7 @@ export default function Contact({ navigate }) {
           `Hello Ad Qube,\n\nI would like to discuss a project:\n\n` +
           `*Name:* ${form.name}\n*Email:* ${form.email}\n` +
           `*Phone:* ${form.phone || 'Not provided'}\n*Brief:* ${form.brief}`
-        window.open(`https://wa.me/916235502722?text=${encodeURIComponent(message)}`, '_blank')
+        window.open(`https://wa.me/917560856994?text=${encodeURIComponent(message)}`, '_blank')
       } else if (!res.ok) {
         const body = await res.json().catch(() => ({}))
         throw new Error(body.error || 'The message could not be sent.')

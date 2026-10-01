@@ -15,7 +15,7 @@ export default function ProjectModal({ open, onClose }) {
     if (!form.name || !form.email) return
 
     const message = `Hello Ad Qube,\n\nI would like to discuss a project:\n\n*Name:* ${form.name}\n*Email:* ${form.email}\n*Phone:* ${form.phone || '—'}\n*Brief:* ${form.brief}`
-    window.open(`https://wa.me/916235502722?text=${encodeURIComponent(message)}`, '_blank')
+    window.open(`https://wa.me/917560856994?text=${encodeURIComponent(message)}`, '_blank')
 
     setSent(true)
     setTimeout(() => {
