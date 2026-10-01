@@ -169,7 +169,7 @@ export default function Footer({ navigate }) {
             © {new Date().getFullYear()} Ad Qube Studios.
           </motion.p>
           <Chars
-            text="Creative AI for brands that want to grow."
+            text="Creations that make your brand worth watching."
             className="text-white/80 text-xs font-light tracking-wide"
           />
         </div>
