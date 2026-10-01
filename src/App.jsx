@@ -4,7 +4,7 @@ import Nav from './components/Nav'
 import Footer from './components/Footer'
 import CtaBanner from './components/CtaBanner'
 import ProjectModal from './components/ProjectModal'
-import ChatWidget from './components/ChatWidget'
+import WhatsAppButton from './components/WhatsAppButton'
 import SpiderSwing from './components/SpiderSwing'
 import Home from './pages/Home'
 import Works from './pages/Works'
@@ -85,7 +85,7 @@ export default function App() {
       {path !== '/' && <Footer navigate={navigate} />}
 
       <ProjectModal open={modalOpen} onClose={() => setModalOpen(false)} />
-      <ChatWidget />
+      <WhatsAppButton />
       <SpiderSwing />
     </div>
   )
