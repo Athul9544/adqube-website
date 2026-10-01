@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- Tab icon: the cube from the brand mark on its own, no wordmark, no
+         plate behind it. The SVG comes first because browsers prefer it and it
+         is the only form that can follow the tab strip's own theme — the cube
+         paints ink on a light strip and white on a dark one, exactly as the
+         mark does in the header and the footer. The PNG is the fallback for
+         browsers that do not take SVG icons. -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-cube-32.png" />
+    <!-- Left on the solid tile deliberately: iOS paints its own opaque
+         background behind a home-screen icon, so a transparent one arrives as
+         a cube on flat black rather than on the brand's ink. -->
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ad Qube — AI Video Ads That Perform</title>
+    <meta
+      name="description"
+      content="Ad Qube is an AI-first video ad studio. We combine AI-powered production with creative strategy so brands can make more, test more, and scale what works — first draft in 48 to 72 hours, no calls required."
+    />
+    <meta name="theme-color" content="#1a1611" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Ad Qube" />
+    <meta property="og:title" content="Ad Qube — AI Video Ads That Perform" />
+    <meta
+      property="og:description"
+      content="AI-powered video ad production paired with creative strategy. First draft in 48 to 72 hours, no calls required."
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

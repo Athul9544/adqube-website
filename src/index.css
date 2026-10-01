@@ -1,0 +1,1182 @@
+@import 'tailwindcss';
+
+/* ── Self-hosted fonts ─────────────────────────────────────────────── */
+/* Inter, variable weight 100–900. One family for the whole site. */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/inter-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/inter-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF,
+    U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ── Design tokens (Tailwind v4 theme) ─────────────────────────────── */
+@theme {
+  /* Both sans and "serif" resolve to Inter — the whole site is one family.
+     To bring a display serif back, change --font-serif here and nothing else. */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-serif: 'Inter', system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+
+  /* Palette: white → gold */
+  --color-ink: #1a1611; /* warm near-black — headings, dark slabs */
+  --color-paper: #fdfbf6; /* barely-warm white — alternating sections */
+  --color-line: #eadfc4; /* borders and dividers */
+  --color-muted: #7a6a4f; /* warm taupe — secondary text, labels */
+  --color-body: #5c5346; /* warm gray — body copy */
+  --color-jelly: #e3b341; /* gold — primary accent */
+  --color-jelly-deep: #8a6516; /* bronze — accent text on light surfaces */
+  --color-jelly-mid: #c69a2e; /* mid gold — hover borders */
+  --color-orange: #e08a1e; /* warm orange — the What We Make feature card */
+}
+
+:root {
+  --ink: #1a1611;
+  --paper: #fdfbf6;
+  --line: #eadfc4;
+  --muted: #7a6a4f;
+  --body: #5c5346;
+  --jelly: #e3b341;
+  --jelly-deep: #8a6516;
+  --jelly-mid: #c69a2e;
+  --jelly-glow: #e3b34159;
+  --jelly-light: #e3b3411f;
+  --glass: #2a1f0861;
+  --ease-custom: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  /* Decorative layers deliberately bleed past their containers — the ink
+     canvas reaches 170px beyond the video box, and the glow blooms use vw
+     units with translates. None of that should be reachable by scrolling.
+     `clip` rather than `hidden` so it never becomes a scroll container, which
+     would break position: sticky further down the line. */
+  overflow-x: clip;
+  background-color: var(--paper);
+  color: var(--ink);
+  letter-spacing: -0.015em;
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  letter-spacing: -0.015em;
+  font-weight: 400;
+}
+
+/* Display type.
+   `font-serif` is this codebase's marker for display text. It used to pull in
+   Instrument Serif at weight 400; Inter needs more weight and tighter tracking
+   to carry the same headlines. Unlayered, so it beats the `font-normal`
+   utility that sits on most of those headings. Tune the weight here. */
+.font-serif {
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+/* The h1–h6 rule above is unlayered, so it outranks Tailwind's font-* utilities
+   on heading elements. These sit at the same level, so headings that need real
+   weight can get it. */
+/* Letterpress. The glyphs are the same colour as the surface behind them, so
+   only the shadows describe the shapes: shadow to the upper-left, highlight to
+   the lower-right, which the eye reads as carved into the page rather than
+   sitting on it. Only works on a surface matching --paper. */
+.emboss {
+  /* Must match the section behind it — the glyphs are invisible by design and
+     only the shadows describe them. Currently sits on white. */
+  color: #ffffff;
+  text-shadow:
+    -4px -4px 7px rgba(138, 101, 22, 0.55),
+    -2px -2px 3px rgba(160, 118, 26, 0.45),
+    -1px -1px 1px rgba(138, 101, 22, 0.35),
+    3px 4px 7px rgba(255, 255, 255, 0.95),
+    1px 2px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Full-height that actually fits on a phone.
+
+   100vh is the LARGE viewport — the height with the browser toolbar hidden. On
+   a real device with the address bar showing, a 100vh hero runs off the bottom
+   of the screen. 100svh is the SMALL viewport, so it always fits; vh stays as
+   the fallback for browsers without svh support. */
+.h-screen-safe {
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+/* Landscape phones are wide but very short. At ~390px tall the hero's normal
+   type and padding total ~500px, pushing the button below the fold. Compress
+   the stack so it fits without touching the portrait or desktop layout. */
+@media (max-height: 540px) and (min-width: 480px) {
+  .hero-fit {
+    padding-top: 4.5rem;
+    padding-bottom: 1.75rem;
+  }
+  .hero-fit h1 {
+    font-size: clamp(1.75rem, 6.5vh, 2.75rem);
+  }
+  .hero-fit p {
+    font-size: 0.875rem;
+    margin-top: 1rem;
+  }
+  .hero-fit button {
+    margin-top: 1.5rem;
+    padding: 0.75rem 2.25rem;
+    font-size: 0.9375rem;
+  }
+}
+
+/* ── VR portrait with orbiting work covers ─────────────────────────────
+   The ring is a preserve-3d container spun on Y. Tiles sit at fixed angles
+   pushed out along Z, so they sweep around. The portrait is painted after the
+   ring, so tiles disappear behind the head and shoulders and re-emerge. */
+/* Every dimension below is a fixed ratio of the portrait's shoulder width,
+   measured off the reference art:
+     tile width   ≈ 12.6%   tile height ≈ 20%   orbit radius ≈ 47%
+   Keeping those ratios is what makes the band sit on the head correctly at any
+   size — change --head and the rest has to move with it. */
+/* ── The "spin the cards" hint ──
+   The row is only a positioning context; the scene inside it keeps its own
+   max-width and centring, so the hint can be taken out of flow and parked
+   beside it without moving the ring by a pixel. */
+.vr-row {
+  position: relative;
+}
+
+.vr-hint {
+  display: flex;
+  /* Above the ring, always. The tiles are 3D-transformed and the near half of
+     the band paints well above the top of the scene box, so clearance alone is
+     not enough to guarantee the words are readable — the scene is its own
+     stacking context, and this sits over it. */
+  position: relative;
+  z-index: 20;
+  align-items: flex-start;
+  /* Centred over the ring on a phone: there is no room beside the cards at
+     this width, so it reads as a caption for the section rather than as
+     something pinned to one side. */
+  justify-content: center;
+  text-align: center;
+  gap: 0.5rem;
+  /* The bottom margin is larger than it looks like it needs to be. The ring's
+     tiles are 3D-transformed and paint some 40px above the top of the scene
+     box, so a gap measured against that box puts the second line underneath
+     the top row of cards. */
+  margin: 2.25rem auto 4rem;
+  padding: 0 1.5rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  /* Grey, not the gold the icons carry: this is an aside, and at the ring's
+     shoulder it should sit behind the work rather than compete with it. */
+  color: rgba(28, 26, 22, 0.45);
+}
+
+/* Two lines, one wording per line. */
+.vr-hint-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.28rem;
+  line-height: 1.35;
+}
+
+.vr-hint-icon {
+  margin-top: 0.1rem;
+}
+
+/* Phone and tablet: the short combined line, nothing else. */
+.vr-hint-pointer {
+  display: none;
+}
+
+/* 1280, not 1024. The scene is 720px wide and centred, so its right edge is at
+   50% + 360px; below this width there is no strip left over on the right for
+   the hint to sit in and it would land on the cards. Narrower than that it
+   stays in flow, above the ring. */
+@media (min-width: 1280px) {
+  /* Out of flow, hard over on the right of the page, and dropped two lines
+     down so it reads alongside the ring rather than above it. */
+  .vr-hint {
+    position: absolute;
+    top: 5.5rem;
+    /* Pulled in from the page edge, but by a share of the width rather than a
+       fixed amount: the scene is 720px and centred, so the strip left over on
+       the right shrinks as the window does, and a fixed inset that reads well
+       at 1440 puts the words on the cards at 1280. */
+    right: clamp(1.5rem, 3.5vw, 5rem);
+    left: auto;
+    margin: 0;
+    padding: 0;
+    max-width: 14rem;
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .vr-hint-text {
+    align-items: flex-start;
+  }
+
+  /* Beside the ring there is room for the long wording. */
+  .vr-hint-pointer {
+    display: block;
+  }
+
+  .vr-hint-short {
+    display: none;
+  }
+}
+
+/* Further in again once the window is wide enough to give it back. Between
+   1280 and 1440 the strip beside the ring is only about 280px, and moving the
+   words this far left there would put them on the cards; above it there is
+   room, so they sit well clear of the page edge. */
+@media (min-width: 1440px) {
+  .vr-hint {
+    right: clamp(5rem, 8vw, 11rem);
+  }
+}
+
+.vr-scene {
+  --head: 86%; /* portrait width as a share of the scene */
+  --r: 156px;
+  --tile-w: 56px;
+  --tile-h: 86px;
+  --shift: 14px; /* how far left of the head the ring's axis sits */
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  /* Deliberately short. Perspective is the distance from the viewer to the z=0
+     plane, so a small value exaggerates depth: near cards blow up, far cards
+     shrink. It has to stay comfortably larger than --r or the near cards cross
+     the camera and invert. */
+  perspective: 500px;
+  /* Must match .vr-ring-anchor's `top`. The default origin is the centre of
+     this box, which sits well below the head — that pulls the ring's back arc
+     down toward the vanishing point and buries it in the hair. */
+  perspective-origin: 50% 21%;
+}
+
+/* Shared depth context for the portrait and the ring, so the browser sorts
+   them against each other by z instead of by paint order. */
+.vr-stage {
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.vr-ring-anchor {
+  position: absolute;
+  /* ~21% down is the centre of the head in the cropped portrait. The ring's
+     axis is nudged left of the head; the portrait itself stays centred. */
+  left: calc(50% - var(--shift));
+  top: 21%;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  /* rotateZ rolls the ring to sit on the head's own tilt; rotateX opens the
+     ellipse so the band arcs over the head rather than cutting straight
+     across. Order matters — the roll is applied to the already-tilted ring. */
+  /* Positive rotateX brings the near side of the ring UP and pushes the far
+     side DOWN — front cards arc over the head, back cards swing down behind the
+     shoulders.
+
+     The rotateY OUTSIDE that tilt swings the ring's nearest point round to the
+     left, so left-hand cards sit closer to the viewer and render larger while
+     right-hand ones fall away and shrink. Perspective scale depends only on z,
+     so no amount of horizontal shifting produces that — the plane itself has to
+     tip. Order matters: a rotateY applied inside the tilt would just spin the
+     ring within its own plane and change nothing. */
+  transform: rotateY(20deg) rotateX(30deg);
+}
+
+/* Rotation is set from rAF so scroll can change its speed — see VrOrbit. */
+.vr-ring {
+  position: absolute;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.vr-tile {
+  position: absolute;
+  width: var(--tile-w);
+  height: var(--tile-h);
+  margin-left: calc(var(--tile-w) / -2);
+  margin-top: calc(var(--tile-h) / -2);
+  transform-style: preserve-3d;
+}
+
+.vr-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 3px;
+  backface-visibility: hidden;
+  box-shadow: 0 10px 22px -6px #1a161159;
+  transition:
+    box-shadow 0.3s ease,
+    filter 0.3s ease;
+}
+
+/* The site hides the native cursor, so a card has to announce itself by
+   lifting rather than by a pointer change. */
+.vr-tile:hover .vr-face {
+  filter: brightness(1.08);
+  box-shadow:
+    0 16px 30px -6px #1a161180,
+    0 0 0 2px var(--jelly);
+}
+
+.vr-face-back {
+  transform: rotateY(180deg);
+}
+
+/* translateZ(0) puts the person on the plane through the ring's centre, which
+   is what the tiles get sorted against. */
+.vr-portrait {
+  position: relative;
+  transform: translateZ(0);
+  display: block;
+  width: var(--head);
+  margin: 0 auto;
+  height: auto;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .vr-scene {
+    --head: 82%;
+    /* Wide relative to the head on purpose. The near arc's drop is r·sinθ, so a
+       bigger radius is what carries the front cards past the chin and onto the
+       chest while the head stays centred in the oval. */
+    --r: 302px;
+    --tile-w: 100px;
+    --tile-h: 154px;
+    --shift: 40px;
+    max-width: 720px;
+    perspective: 900px;
+  }
+}
+
+/* ── Works closing card ────────────────────────────────────────────────
+   --k is written by WorksOutro: 1 while the panel is still card-sized, 0 once
+   it has filled the screen. The panel itself is always full-bleed; the inset
+   clip is what makes it look like a card, so nothing inside is ever scaled. */
+.outro-panel {
+  --k: 1;
+  --cw: 272px;
+  --ch: 408px;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(150deg, #221c14 0%, #1a1611 45%, #100d09 100%);
+  clip-path: inset(
+    calc((100% - var(--ch)) / 2 * var(--k)) calc((100% - var(--cw)) / 2 * var(--k))
+      calc((100% - var(--ch)) / 2 * var(--k)) calc((100% - var(--cw)) / 2 * var(--k)) round
+      /* 16px matches the deck card's rounded-2xl, so the hand-over from card to
+         panel lines up exactly. */ calc(16px * var(--k))
+  );
+}
+
+/* Type grows as the window opens, so the card reads as coming toward you
+   rather than the mask simply retreating. */
+.outro-word {
+  font-size: calc(1.7rem + (1 - var(--k)) * 3.2rem);
+}
+.outro-hint {
+  opacity: calc(1 - var(--k));
+}
+
+@media (min-width: 768px) {
+  .outro-word {
+    font-size: calc(2.1rem + (1 - var(--k)) * 7rem);
+  }
+}
+
+@media (max-width: 767px) {
+  .outro-panel {
+    --cw: 180px;
+    --ch: 270px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .outro-panel {
+    clip-path: none;
+  }
+}
+
+/* ── Blog coverflow ────────────────────────────────────────────────────
+   Cards ride the near face of a cylinder. --d is a card's signed distance from
+   centre in card-widths and --t its nearness (1 at centre); BlogCarousel writes
+   both from scrollLeft and every visual property interpolates from them here.
+
+   translateZ is negative and driven by d^2 rather than |d|, so cards fall away
+   increasingly fast — that is what gives the row its curve instead of a flat
+   diagonal. */
+.flow-stage {
+  --cw: 210px;
+  --ch: 300px;
+  --gap: 228px; /* centre-to-centre spacing between neighbouring cards */
+  perspective: 1150px;
+  transform-style: preserve-3d;
+}
+
+.flow-card {
+  --d: 0; /* signed distance from centre, in slots */
+  --turn: 0; /* same, clamped short of edge-on */
+  --t: 1; /* nearness to centre, 1 at the middle */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--cw);
+  height: var(--ch);
+  margin-left: calc(var(--cw) / -2);
+  margin-top: calc(var(--ch) / -2);
+  cursor: pointer;
+  /* translateX first so the card slides along the rail, then the turn and the
+     push-back happen about its own centre. */
+  transform: translateX(calc(var(--d) * var(--gap))) rotateY(calc(var(--turn) * 30deg))
+    translateZ(calc(var(--turn) * var(--turn) * -34px)) scale(calc(0.9 + 0.1 * var(--t)));
+  opacity: calc(0.35 + 0.65 * var(--t));
+  filter: saturate(calc(0.45 + 0.55 * var(--t)));
+}
+
+/* Shared by the closing tile and the panel it opens into, so the hand-over
+   between them is invisible. */
+.chat-tile {
+  background: linear-gradient(150deg, #221c14 0%, #1a1611 45%, #100d09 100%);
+}
+
+.chat-mark {
+  width: calc(3rem + (1 - var(--k, 0)) * 4rem);
+  height: calc(3rem + (1 - var(--k, 0)) * 4rem);
+}
+
+/* Circular reveal anchored to the chat launcher, which sits at bottom-5 right-5
+   at 56px square — so its centre is 48px in from each corner. --k runs 1 (a
+   disc the size of the launcher) to 0 (large enough to cover any viewport).
+   150vmax is simply bigger than any screen diagonal. */
+.chat-zoom {
+  --k: 1;
+  position: fixed;
+  inset: 0;
+  z-index: 65;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: circle(
+    calc(28px + (1 - var(--k)) * 150vmax) at calc(100% - 48px) calc(100% - 48px)
+  );
+}
+
+@media (min-width: 768px) {
+  .flow-stage {
+    --cw: 268px;
+    --ch: 382px;
+    --gap: 296px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow-card {
+    transform: none;
+    opacity: 1;
+    filter: none;
+  }
+}
+
+/* ── Works decorative backdrop ─────────────────────────────────────────
+   The plate is static; only the elements layered over it move. Everything
+   animated here is transform/opacity so it stays on the compositor. */
+.wb {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* The plates are near-white but not pure white, so the section keeps its own
+     white ground underneath and the two blend rather than banding. */
+  background: #ffffff;
+}
+
+.wb-plate {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Feathered edges where two plates meet, so scrolling between the sections
+   never crosses a hard seam. */
+.wb-fade-bottom {
+  -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
+}
+.wb-fade-top {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 26%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 26%);
+}
+.wb-fade-both {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 76%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 76%, transparent 100%);
+}
+
+.wb-glow {
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  width: 62vw;
+  height: 62vw;
+  max-width: 780px;
+  max-height: 780px;
+  margin-left: -31vw;
+  margin-top: -31vw;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(227, 179, 65, 0.09) 0%, rgba(227, 179, 65, 0.03) 45%, transparent 70%);
+  will-change: transform, opacity;
+}
+
+/* Cubes are three parallelograms in a hexagon — cheaper and sharper than a
+   preserve-3d box, and they only ever need one flat rotation. */
+.wb-cube {
+  position: absolute;
+  /* Held back so they sit behind the type rather than competing with it. */
+  opacity: 0.8;
+  will-change: transform;
+}
+.wb-face {
+  position: absolute;
+  inset: 0;
+}
+.wb-top {
+  clip-path: polygon(50% 0%, 100% 25%, 50% 50%, 0% 25%);
+}
+.wb-left {
+  clip-path: polygon(0% 25%, 50% 50%, 50% 100%, 0% 75%);
+}
+.wb-right {
+  clip-path: polygon(100% 25%, 100% 75%, 50% 100%, 50% 50%);
+}
+
+.wb-cube-gold .wb-top {
+  background: linear-gradient(135deg, #f6dfa4, #e3b341);
+}
+.wb-cube-gold .wb-left {
+  background: linear-gradient(160deg, #c99c33, #9d762060);
+}
+.wb-cube-gold .wb-right {
+  background: linear-gradient(200deg, #eec96f, #c2941f);
+}
+
+.wb-cube-glass .wb-top {
+  background: linear-gradient(135deg, #ffffff, #eef1f4);
+}
+.wb-cube-glass .wb-left {
+  background: linear-gradient(160deg, #e6eaee90, #cdd4db70);
+}
+.wb-cube-glass .wb-right {
+  background: linear-gradient(200deg, #f7f9fb, #dfe5ea90);
+}
+
+.wb-shine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 45%;
+  background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.95), transparent);
+  will-change: transform, opacity;
+}
+
+.wb-sphere {
+  position: absolute;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 32% 28%, #fbeec2, #e3b341 55%, #a87d1c);
+  will-change: transform;
+}
+
+.wb-waves {
+  position: absolute;
+  left: -4%;
+  right: -4%;
+  bottom: 0;
+  height: 46%;
+  background:
+    repeating-linear-gradient(
+      -8deg,
+      transparent 0 22px,
+      rgba(227, 179, 65, 0.13) 22px 23px,
+      transparent 23px 46px
+    );
+  -webkit-mask-image: radial-gradient(120% 100% at 50% 100%, #000 20%, transparent 72%);
+  mask-image: radial-gradient(120% 100% at 50% 100%, #000 20%, transparent 72%);
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wb-glow,
+  .wb-cube,
+  .wb-sphere,
+  .wb-waves,
+  .wb-shine {
+    animation: none !important;
+  }
+  .wb-shine {
+    display: none;
+  }
+}
+
+/* ── Card slab ─────────────────────────────────────────────────────────
+   Shared by the works deck and the blog rail: turns a flat card into a solid
+   block with visible thickness.
+
+   Three parts do the work. A pseudo-element offset behind the face reads as the
+   extruded side of the block; an inset rim on the face catches light along the
+   top edge and darkens the bottom, which is what makes it look bevelled rather
+   than printed; and a stack of increasingly wide, increasingly soft shadows
+   grounds it. One shadow at one blur always looks stuck on — the spread across
+   several is what reads as real depth.
+
+   Applied to the outer, transformed element so the whole block rotates and
+   scales together with the existing animations. */
+.slab {
+  border-radius: 18px;
+  box-shadow:
+    0 2px 4px -2px rgba(26, 22, 17, 0.4),
+    0 8px 14px -6px rgba(26, 22, 17, 0.34),
+    0 22px 34px -14px rgba(26, 22, 17, 0.32),
+    0 44px 70px -30px rgba(26, 22, 17, 0.3);
+}
+
+/* The side of the block. Sits behind the face and slightly down-right, so the
+   light reads as coming from the upper left like everything else on the page. */
+.slab::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(152deg, #4b4136 0%, #241e18 48%, #100d0a 100%);
+  transform: translate3d(6px, 8px, 0);
+  z-index: -1;
+}
+
+/* The face itself — bevel, and the clip that keeps artwork inside the radius. */
+.slab > * {
+  border-radius: inherit;
+  overflow: hidden;
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1.5px 0 rgba(0, 0, 0, 0.5),
+    inset 1.5px 0 0 rgba(255, 255, 255, 0.1),
+    inset -1.5px 0 0 rgba(0, 0, 0, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+}
+
+/* ── Works fan ─────────────────────────────────────────────────────────
+   Cards sit on a circle whose hub is --r below the arc, so the anchor point is
+   pushed that far down and each card is thrown back out along its own angle.
+   `rotate(a) translateY(-r)` does both at once: it places the card on the
+   circle AND leans it to match, which is what a real fanned deck does.
+
+   --a (angle) and --t (0..1 nearness to centre) are written per card by
+   WorksFan; everything positional interpolates from them here. */
+.fan {
+  --r: 620px;
+  --cw: 272px;
+  --ch: 408px;
+  --gap: 30px; /* distance from the heading down to the top of the cards */
+}
+
+.fan-card {
+  --a: 0;
+  --t: 1;
+  position: absolute;
+  left: 50%;
+  /* The hub, one radius below the arc the cards ride on.
+     A card's top edge lands at `top - r - ch/2`, so adding those back puts it
+     exactly --gap below the heading. A percentage here instead would scale with
+     the viewport and leave a very different gap on a phone than on a desktop. */
+  top: calc(var(--gap) + var(--ch) / 2 + var(--r));
+  width: var(--cw);
+  height: var(--ch);
+  margin-left: calc(var(--cw) / -2);
+  margin-top: calc(var(--ch) / -2);
+  /* scale last, so it works in the card's own frame and pops the centre one
+     forward out of the deck. */
+  transform: rotate(calc(var(--a) * 1deg)) translateY(calc(-1 * var(--r)))
+    scale(calc(0.84 + 0.16 * var(--t)));
+  /* Off-centre cards recede by fading into the white page, not by darkening.
+     A brightness() dim turns them into near-black slabs against white, which
+     reads as a dark background flashing through the deck. */
+  opacity: calc(0.28 + 0.72 * var(--t));
+  /* Straight --t, so the outer cards go fully monochrome and only the centre
+     one carries colour — that contrast is what the reference is doing. */
+  filter: saturate(var(--t));
+  cursor: pointer;
+}
+
+@media (max-width: 767px) {
+  .fan {
+    --r: 430px;
+    --cw: 180px;
+    --ch: 270px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fan-card {
+    opacity: 1;
+    filter: none;
+  }
+}
+
+/* ── Works poster slider ───────────────────────────────────────────────
+   --t is written per card by WorksSlider: 1 when the card sits at the centre
+   of the track, falling to 0 towards the edges. Everything that reacts to
+   position interpolates from it here, so the JS only ever writes one value. */
+.works-track {
+  scroll-snap-type: x mandatory;
+  /* Vertical wheel is left alone on purpose — the page has to keep scrolling
+     to the section below. */
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.works-track::-webkit-scrollbar {
+  display: none;
+}
+
+.works-card {
+  --t: 0;
+  width: 220px;
+  height: 330px;
+  scroll-snap-align: center;
+  transform: scale(calc(0.82 + 0.18 * var(--t)));
+  opacity: calc(0.5 + 0.5 * var(--t));
+  filter: saturate(calc(0.55 + 0.45 * var(--t)));
+  cursor: pointer;
+}
+
+/* The centre card's caption grows a little with it, so the type doesn't look
+   pasted on at a fixed size. */
+.works-card-title {
+  font-size: calc(0.95rem + 0.15rem * var(--t));
+}
+
+/* Half the track minus half a card, so the outermost cards can still centre. */
+.works-pad {
+  width: calc(50% - 110px);
+}
+
+@media (min-width: 768px) {
+  .works-card {
+    width: 290px;
+    height: 435px;
+  }
+  .works-pad {
+    width: calc(50% - 145px);
+  }
+  .works-card-title {
+    font-size: calc(1.05rem + 0.2rem * var(--t));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .works-card {
+    transform: none;
+    opacity: 1;
+    filter: none;
+  }
+}
+
+.heading-700 {
+  font-weight: 700;
+}
+.heading-800 {
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+/* Custom cursor takes over on fine pointers.
+
+   Scoped to body so the admin panel can opt out: it renders no custom cursor,
+   and without this escape hatch it would be left with no cursor at all — plus
+   form fields need their real I-beam and pointer affordances. */
+@media (pointer: fine) {
+  body:not(.native-cursor) * {
+    cursor: none !important;
+  }
+}
+@media (pointer: coarse) {
+  * {
+    cursor: auto !important;
+  }
+}
+
+/* ── Utility classes carried over from the original build ──────────── */
+.glass-effect {
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  background: #0a0a0a59;
+  border: 1px solid #ffffff26;
+  box-shadow:
+    0 16px 40px -8px #0006,
+    inset 0 1px #ffffff26;
+}
+
+.glass-nav {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: #ffffff61;
+  border: 1px solid #ffffff73;
+  box-shadow: 0 4px 30px #143c080f;
+}
+
+.skyArt {
+  background: url(/Pixel.webp) 50% / cover no-repeat;
+  position: relative;
+  overflow: hidden;
+}
+
+.skyVideo {
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+
+.jelly-glow {
+  box-shadow:
+    0 0 24px var(--jelly-glow),
+    0 2px 8px #8a651633;
+}
+
+.jelly-text {
+  background: linear-gradient(135deg, var(--jelly) 0%, var(--jelly-deep) 100%);
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* ── Hero entrance animation ───────────────────────────────────────── */
+@keyframes fade-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-rise {
+  animation: 0.8s ease-out forwards fade-rise;
+}
+.animate-fade-rise-delay {
+  opacity: 0;
+  animation: 0.8s ease-out 0.2s forwards fade-rise;
+}
+.animate-fade-rise-delay-2 {
+  opacity: 0;
+  animation: 0.8s ease-out 0.4s forwards fade-rise;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--paper);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
+/* ── Brochure spreads ────────────────────────────────────────────────
+   Four stacked drops rather than one: a tight contact shadow to seat the
+   sheet, two mid layers for body, and a wide warm one that picks up the
+   gold in the page. A single large shadow at this size reads as grey haze.
+   The lift on hover is what makes it feel like a sheet rather than a
+   printed panel. */
+.brochure-slide {
+  box-shadow:
+    0 1px 2px rgba(26, 22, 17, 0.07),
+    0 5px 12px rgba(26, 22, 17, 0.08),
+    0 14px 32px rgba(26, 22, 17, 0.1),
+    0 32px 68px rgba(58, 44, 10, 0.14);
+  transition:
+    box-shadow 500ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.brochure-slide:hover {
+  transform: translateY(-5px);
+  box-shadow:
+    0 2px 4px rgba(26, 22, 17, 0.08),
+    0 9px 20px rgba(26, 22, 17, 0.1),
+    0 24px 50px rgba(26, 22, 17, 0.13),
+    0 50px 100px rgba(58, 44, 10, 0.19);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brochure-slide {
+    transition: none;
+  }
+  .brochure-slide:hover {
+    transform: none;
+  }
+}
+
+/* ── Footer legibility ───────────────────────────────────────────────
+   The cube stream runs behind the footer copy, and gold on a dark ground is
+   close enough in luminance to white text to eat its edges. A tight shadow
+   plus a wider soft one puts a dark halo around every glyph, so the type
+   holds whether a cube is behind it or not — without touching the colours. */
+.footer-legible,
+.footer-legible * {
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.9),
+    0 0 12px rgba(0, 0, 0, 0.65);
+}
+.footer-legible img {
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 10px rgba(0, 0, 0, 0.55));
+}
+/* The oversized wordmark is painted through a gradient clip; a text-shadow
+   there draws behind the transparent glyph and shows as a grey smear. */
+.footer-legible .bg-clip-text {
+  text-shadow: none;
+}
+
+.statement-label {
+  font-size: clamp(9px, 1.05vw, 12px);
+  letter-spacing: 0.28em;
+  margin: 0 0 clamp(0.7rem, 1.8vw, 1.4rem);
+  align-self: flex-start;
+  padding-left: clamp(0.5rem, 1.6vw, 2rem);
+}
+
+.statement-copy {
+  margin-top: clamp(1.2rem, 3vw, 2.2rem);
+  max-width: 34rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: clamp(11px, 1.3vw, 15px);
+  line-height: 1.75;
+}
+
+/* The two halves of the cover, parting to expose the word. Each is its own
+   layer so they can travel in opposite directions; together they seal the tile
+   shut until the statement's turn comes. */
+.statement-cover {
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  height: 50.4%;
+  background: #14100a;
+  pointer-events: none;
+  z-index: 5;
+  will-change: transform;
+}
+.statement-cover-top {
+  top: 0;
+}
+.statement-cover-bottom {
+  bottom: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .statement-cover {
+    display: none;
+  }
+}
+
+
+
+/* The closing lockup. Width-driven so it tracks the headline beneath it, and
+   height auto so its 4.25:1 proportion is never squashed. Grows with --k like
+   the mark it replaced, so it opens out of the launcher at the same rate. */
+.statement-lockup {
+  width: calc(9rem + (1 - var(--k, 0)) * 13rem);
+  max-width: 62vw;
+  height: auto;
+  margin-bottom: clamp(1.4rem, 3.4vw, 2.8rem);
+}
+
+/* ── The closing statement: a liquid-glass ripple ────────────────────
+   A band of glass travels across the word, right to left, scrubbed off scroll.
+   The letters are never revealed or hidden — they are always there, and the
+   band simply bends the light passing through the part it covers.
+
+   Two copies of the same word:
+     · base — the plain text, masked so it drops out exactly where the glass is;
+     · lens — the same text inside a wrapper carrying the SVG displacement
+       filter, masked to the band.
+
+   The nesting is what makes the ripple edge organic. CSS applies filter before
+   mask, so filtering the lens directly would leave a ruler-straight boundary
+   with a wobbly interior. Putting the mask on the child and the filter on the
+   parent displaces the already-masked shape, so the boundary itself is warped
+   by the same turbulence as the glyphs.
+
+   The lens band is deliberately wider than the hole in the base: the warped
+   edge wanders by up to the displacement scale, and it has to stay inside the
+   base's feather or a sliver of gap would open at the seam. */
+.statement-stack {
+  position: relative;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+}
+
+.statement-word {
+  grid-area: 1 / 1;
+  font-size: clamp(2rem, 13.6vw, 13rem);
+  letter-spacing: -0.035em;
+  margin: 0;
+  /* One line, always. The phrase has spaces in it and will happily wrap at
+     this size, and two stacked lines is not the reference composition. */
+  white-space: nowrap;
+  color: #f3ecdd;
+  /* Transparent to the pointer so hit-testing falls through to the glow
+     layer's per-letter spans underneath, which are what the custom cursor
+     reacts to. Without this the topmost copy of the word swallows every hover
+     and the cursor only ever sees one target for the whole line. */
+  pointer-events: none;
+}
+
+/* Right to left: 125% at rest, walking to -25%, so the band is completely off
+   the word at both ends of the travel. */
+.statement-stack {
+  --wave: calc(125% - var(--sweep, 1) * 150%);
+}
+
+/* The plain text, with a hole where the glass is. */
+.statement-base {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    #000 calc(var(--wave) - 22%),
+    rgba(0, 0, 0, 0.4) calc(var(--wave) - 12%),
+    transparent calc(var(--wave) - 4%),
+    transparent calc(var(--wave) + 4%),
+    rgba(0, 0, 0, 0.4) calc(var(--wave) + 12%),
+    #000 calc(var(--wave) + 22%)
+  );
+  mask-image: linear-gradient(
+    to right,
+    #000 calc(var(--wave) - 22%),
+    rgba(0, 0, 0, 0.4) calc(var(--wave) - 12%),
+    transparent calc(var(--wave) - 4%),
+    transparent calc(var(--wave) + 4%),
+    rgba(0, 0, 0, 0.4) calc(var(--wave) + 12%),
+    #000 calc(var(--wave) + 22%)
+  );
+}
+
+/* Carries the filter only. Sized to the grid cell so the filter region is the
+   element's own box. */
+.statement-warp {
+  grid-area: 1 / 1;
+  display: grid;
+  place-items: center;
+  filter: url(#liquid-glass);
+  pointer-events: none;
+}
+
+/* The glass itself. Cooler and a shade brighter than the base — light through
+   a lens picks up a little and shifts, which is what sells it as a material
+   rather than a highlight. */
+.statement-lens {
+  color: #fffdf7;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent calc(var(--wave) - 32%),
+    rgba(0, 0, 0, 0.5) calc(var(--wave) - 18%),
+    #000 calc(var(--wave) - 6%),
+    #000 calc(var(--wave) + 6%),
+    rgba(0, 0, 0, 0.5) calc(var(--wave) + 18%),
+    transparent calc(var(--wave) + 32%)
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent calc(var(--wave) - 32%),
+    rgba(0, 0, 0, 0.5) calc(var(--wave) - 18%),
+    #000 calc(var(--wave) - 6%),
+    #000 calc(var(--wave) + 6%),
+    rgba(0, 0, 0, 0.5) calc(var(--wave) + 18%),
+    transparent calc(var(--wave) + 32%)
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No travelling glass — the word simply sits there, unmasked. */
+  .statement-warp {
+    display: none;
+  }
+  .statement-base {
+    -webkit-mask-image: none;
+    mask-image: none;
+    color: #fffdf7;
+  }
+}
+
+/* The per-letter light, on its own layer behind the word.
+
+   drop-shadow, not blur: blur() on a filled word bleeds sideways and the gaps
+   between letters fill in, so the light becomes a lit rectangle the size of the
+   text. drop-shadow works from the alpha the element paints, so it haloes each
+   glyph's own outline and the light spreads around the letters instead. */
+.statement-glow {
+  grid-area: 1 / 1;
+  z-index: 0;
+  color: #f3ecdd;
+  pointer-events: none;
+}
+
+.statement-letter {
+  display: inline-block;
+  /* Re-enabled against the layer's own `none`: these spans are the cursor's
+     hover targets, one per glyph, so the ring swells on the letter it is over
+     and not on the word as a whole. */
+  pointer-events: auto;
+  /* Two radii: a bright core hugging the glyph and a wider cool spill. Neither
+     is wide enough to close the gap to the next letter. */
+  filter: drop-shadow(0 0 calc(var(--a, 0) * 7px) rgba(255, 253, 246, 0.85))
+    drop-shadow(0 0 calc(var(--a, 0) * 18px) rgba(176, 218, 255, 0.52));
+}
+
+/* The word breaks. Lit like the rest, but not a hover target. */
+.statement-gap {
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .statement-glow {
+    display: none;
+  }
+}
